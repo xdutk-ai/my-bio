@@ -1,73 +1,50 @@
 body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #000; }
-
-/* ФІОЛЕТОВИЙ ГРАДІЄНТ (Як ти просив) */
 .bg-gradient {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    position: fixed; width: 100%; height: 100%;
     background: radial-gradient(circle at center, #1b0c2e 0%, #050505 100%);
     z-index: -1;
 }
-
-.main-wrapper { display: flex; justify-content: center; align-items: center; height: 100vh; position: relative; z-index: 10; }
-
+.main-wrapper { display: flex; justify-content: center; align-items: center; height: 100vh; position: relative; }
 .bio-card {
     background: rgba(255, 255, 255, 0.05); border-radius: 20px; width: 320px;
-    position: absolute; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-    overflow: hidden; cursor: grab;
-    /* Плане приховування */
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    opacity: 1; transform: scale(1);
+    position: absolute; backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: opacity 0.3s, transform 0.3s;
 }
-
-/* Стан згорнутого вікна */
-.hidden-win { opacity: 0; transform: scale(0.9) translateY(40px); pointer-events: none; }
-
-.card-header { background: rgba(0,0,0,0.4); padding: 12px; display: flex; justify-content: space-between; align-items: center; cursor: move; }
-
-/* ЦЯТКИ (Тепер натискаються) */
+.hidden-win { opacity: 0; transform: scale(0.9); pointer-events: none; }
+.card-header { background: rgba(0,0,0,0.4); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: move; }
 .dots { display: flex; gap: 7px; }
-.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; cursor: pointer; transition: 0.2s; position: relative; }
-.dot:hover { transform: scale(1.25); filter: brightness(1.2); }
-
-.red { background: #ff5f56; box-shadow: 0 0 5px rgba(255, 95, 86, 0.5); }
-.yellow { background: #ffbd2e; box-shadow: 0 0 5px rgba(255, 189, 46, 0.5); }
-.green { background: #27c93f; box-shadow: 0 0 5px rgba(39, 201, 63, 0.5); }
-
-.header-title { color: rgba(255,255,255,0.3); font-size: 10px; font-weight: bold; text-transform: uppercase; }
-
+.dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; transition: 0.2s; }
+.dot:hover { transform: scale(1.2); }
+.red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
+.header-title { color: rgba(255,255,255,0.3); font-size: 9px; font-weight: bold; text-transform: uppercase; pointer-events: none; }
 .card-content { padding: 30px; text-align: center; color: white; }
-.avatar-container { width: 100px; height: 100px; margin: 0 auto 15px; border: 2px solid #66c0f4; border-radius: 50%; overflow: hidden; transition: all 0.3s ease; cursor: pointer; }
+.avatar-container { width: 90px; height: 90px; margin: 0 auto 12px; border: 2px solid #66c0f4; border-radius: 50%; overflow: hidden; cursor: pointer; transition: 0.3s; }
 .avatar-img { width: 100%; height: 100%; object-fit: cover; }
-h1 { margin: 0; font-size: 28px; }
-.age-badge { color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 25px; }
-
-.links-grid { display: grid; gap: 10px; }
-.liquid-btn { text-decoration: none; color: white; padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
-.liquid-btn:hover { background: rgba(102, 192, 244, 0.2); transform: translateY(-3px); }
-
-/* ПЛЕЄР */
-.music-widget { width: 280px; top: 40px; right: 40px; }
-.player-content { padding: 20px; color: white; }
-.track-info { display: flex; align-items: center; gap: 10px; font-size: 11px; margin-bottom: 12px; opacity: 0.8; }
-#progress-slider { width: 100%; accent-color: #66c0f4; height: 4px; cursor: pointer; }
-.time-info { display: flex; justify-content: space-between; font-size: 9px; opacity: 0.5; margin-bottom: 15px; }
-.controls { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
-
-/* Стара кнопка */
-.old-play-btn {
-    background: white; border: none; width: 40px; height: 40px; border-radius: 50%;
-    color: black; font-size: 16px; cursor: pointer; transition: 0.3s;
-    display: flex; align-items: center; justify-content: center;
+h1 { margin: 0; font-size: 24px; }
+.age-badge { color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 20px; }
+.links-grid { display: grid; gap: 8px; }
+.liquid-btn {
+    text-decoration: none; color: white; padding: 10px; border-radius: 10px;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;
 }
-.old-play-btn:hover { transform: scale(1.1); }
-
-.volume-box { display: flex; align-items: center; gap: 8px; flex-grow: 1; }
-#volume-slider { width: 100%; accent-color: #66c0f4; height: 3px; cursor: pointer; }
-
-.shake-me { animation: shake 0.6s both; border-color: #ff5f56 !important; box-shadow: 0 0 20px rgba(255, 95, 86, 0.5) !important; }
+.liquid-btn:hover { background: rgba(102, 192, 244, 0.2); transform: translateY(-2px); }
+.music-widget { width: 260px; bottom: 30px; right: 30px; top: auto; }
+.player-content { padding: 12px 15px; color: white; }
+.player-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.old-play-btn {
+    background: white; border: none; width: 34px; height: 34px; border-radius: 50%;
+    color: black; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.track-info-mini { display: flex; flex-direction: column; font-size: 11px; overflow: hidden; }
+#track-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.8; }
+.time-mini { font-size: 9px; opacity: 0.5; font-family: monospace; }
+#progress-slider { width: 100%; accent-color: #66c0f4; height: 3px; cursor: pointer; }
+.volume-row { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+#volume-slider { width: 100%; accent-color: #66c0f4; height: 2px; }
+.shake-me { animation: shake 0.5s; border-color: #ff5f56 !important; }
 @keyframes shake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-  40%, 60% { transform: translate3d(4px, 0, 0); }
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
 }
