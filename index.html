@@ -2,52 +2,56 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>xdutk | Bio</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-    <div class="bg-gradient"></div>
+    <canvas id="garland-canvas"></canvas>
+
     <div class="main-wrapper">
         <div id="bio-card" class="bio-card">
-            <div class="card-header">
+            <div class="card-header" id="bio-handle">
                 <div class="dots">
                     <span class="dot red" onclick="toggleWin('bio-card')"></span>
                     <span class="dot yellow" onclick="toggleWin('bio-card')"></span>
                     <span class="dot green" onclick="celebrateRandom()"></span>
                 </div>
-                <span class="header-title" id="title-bio">profile.exe</span>
+                <span class="header-title">profile.exe</span>
             </div>
             <div class="card-content">
-                <div class="avatar-container" id="main-avatar">
+                <div id="main-avatar" class="avatar-container-circle" onclick="clickAvatar()">
                     <img src="avatar.png" alt="xdutk" class="avatar-img">
                 </div>
                 <h1>xdutk</h1>
-                <div class="age-badge">
-                    <span id="txt-age-prefix">Мені</span> 
-                    <span id="age">12</span> 
-                    <span id="txt-age-suffix">років</span>
-                </div>
+                <div class="age-badge">Мені 12 років</div>
                 <div class="links-grid">
                     <a href="https://t.me/xdutk" target="_blank" class="liquid-btn">
                         <i class="fab fa-telegram-plane"></i> Telegram
                     </a>
+                    <button class="liquid-btn" onclick="copyCrosshair()">
+                        <i class="fas fa-crosshairs"></i> Приціл CS
+                    </button>
+                    <a href="https://drive.google.com/uc?export=download&id=1og3EIBfLlzkgD0lJ263zr8THlrRXuH_3" class="liquid-btn">
+                        <i class="fas fa-file-archive"></i> Збірка Майн
+                    </a>
                     <a href="https://steamcommunity.com/profiles/76561199841630286/" target="_blank" class="liquid-btn">
-                        <i class="fab fa-steam"></i> <span id="txt-steam">Steam Профіль</span>
+                        <i class="fab fa-steam"></i> Steam
                     </a>
                 </div>
             </div>
         </div>
+
         <div id="music-player" class="bio-card music-widget">
-            <div class="card-header">
+            <div class="card-header" id="player-handle">
                 <div class="dots">
                     <span class="dot red" onclick="toggleWin('music-player')"></span>
                     <span class="dot yellow" onclick="toggleWin('music-player')"></span>
                     <span class="dot green" onclick="celebrateRandom()"></span>
                 </div>
-                <span class="header-title" id="title-player">player.exe</span>
+                <span class="header-title">player.exe</span>
             </div>
             <div class="player-content">
                 <div class="player-row">
@@ -66,6 +70,6 @@
             <audio id="bg-audio" src="music.mp3" loop></audio>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script src="garland.js"></script> <script src="script.js"></script>
 </body>
 </html>
