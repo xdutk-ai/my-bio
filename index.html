@@ -22,17 +22,29 @@
                 <span class="header-title">profile.exe</span>
             </div>
             <div class="card-content">
-                <div id="main-avatar" class="avatar-container-circle" onclick="clickAvatar()">
-                    <img src="avatar.png" alt="xdutk" class="avatar-img">
+                <div id="main-avatar" class="avatar-container-circle" 
+                     onmousedown="startRage()" 
+                     onmouseup="stopRage()" 
+                     onmouseleave="stopRage()"
+                     ontouchstart="startRage()" 
+                     ontouchend="stopRage()">
+                    
+                    <img src="avatar.png" alt="xdutk" id="avatar-normal" class="avatar-img visible" draggable="false">
+                    <img src="angryavatar.jpg" alt="xdutk angry" id="avatar-angry" class="avatar-img hidden" draggable="false">
+                    
+                    <div class="smoke-container" id="smoke"></div>
                 </div>
+
                 <h1>xdutk</h1>
                 <div class="age-badge">Мені 12 років</div>
+                
                 <div class="links-grid">
                     <a href="https://t.me/xdutk" target="_blank" class="liquid-btn">
                         <i class="fab fa-telegram-plane"></i> Telegram
                     </a>
-                    <button class="liquid-btn" onclick="copyCrosshair()">
+                    <button class="liquid-btn" onclick="copyCrosshair(this)">
                         <i class="fas fa-crosshairs"></i> Приціл CS
+                        <span class="copy-tooltip">Скопійовано!</span>
                     </button>
                     <a href="https://drive.google.com/uc?export=download&id=1og3EIBfLlzkgD0lJ263zr8THlrRXuH_3" class="liquid-btn">
                         <i class="fas fa-file-archive"></i> Збірка Майн
@@ -61,15 +73,18 @@
                         <div class="time-mini"><span id="current-time">0:00</span> / <span id="duration">0:00</span></div>
                     </div>
                 </div>
-                <input type="range" id="progress-slider" min="0" max="100" value="0">
+                <div class="progress-row">
+                    <input type="range" id="progress-slider" min="0" max="100" value="0">
+                </div>
                 <div class="volume-row">
-                    <i class="fas fa-volume-down" style="font-size: 10px; opacity: 0.5;"></i>
                     <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
                 </div>
             </div>
             <audio id="bg-audio" src="music.mp3" loop></audio>
         </div>
     </div>
-    <script src="garland.js"></script> <script src="script.js"></script>
+
+    <script src="garland.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
