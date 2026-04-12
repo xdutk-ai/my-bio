@@ -71,10 +71,7 @@ function startSnowfall() {
 
 // --- РАНДОМАЙЗЕР КОНФЕТТИ С КД И ШАНСАМИ ---
 function celebrateRandom() {
-    // 1. ПРОВЕРКА КД
-    if (!canCelebrate) {
-        return; 
-    }
+    if (!canCelebrate) return;
 
     const colors = ['#66c0f4', '#ffbd2e', '#ff5f56', '#27c93f', '#a371f7'];
     const chance = Math.random() * 100;
@@ -114,13 +111,12 @@ function celebrateRandom() {
         });
     }
 
-    // 2. АКТИВАЦИЯ КД
     canCelebrate = false;
     const btn = event.currentTarget; 
     
     if (btn && btn.style) {
         btn.style.opacity = "0.5";
-        btn.style.cursor = "default"; // УБРАЛИ РАЗДРАЖАЮЩИЙ КРАСНЫЙ КУРСОР
+        btn.style.cursor = "default"; 
     }
 
     setTimeout(() => {
@@ -138,26 +134,20 @@ function copyCrosshair(btn) {
         const tip = btn.querySelector('.copy-tooltip');
         tip.classList.add('show');
         setTimeout(() => tip.classList.remove('show'), 1200);
-    }).catch(err => {
-        console.error('Не удалось скопировать: ', err);
     });
 }
 
-// --- ПЕРЕТЯГИВАНИЕ ОКОН (С ИСПРАВЛЕННЫМ КУРСОРОМ) ---
+// --- ПЕРЕТЯГИВАНИЕ ОКОН (БЕЗ СТРЕЛОЧЕК) ---
 function makeDraggable(el, handleId) {
     let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
     const handle = document.getElementById(handleId);
     
-    // Ставим нормальный курсор на шапку
     handle.style.cursor = "pointer"; 
 
     handle.onmousedown = (e) => {
         if (e.target.classList.contains('dot')) return;
         e.preventDefault();
-        
-        // Когда тянем — можно оставить pointer или сжатый кулак (grabbing)
         handle.style.cursor = "grabbing"; 
-        
         p3 = e.clientX; 
         p4 = e.clientY;
         
@@ -186,12 +176,11 @@ function makeDraggable(el, handleId) {
         
         document.onmouseup = () => { 
             document.onmousemove = null; 
-            handle.style.cursor = "pointer"; // Возвращаем обычную ладошку
+            handle.style.cursor = "pointer"; 
         };
     };
 }
 
-// Анимация точек управления
 function toggleWin(id) {
     const w = document.getElementById(id);
     w.style.opacity = "0.2";
@@ -219,9 +208,7 @@ playBtn.onclick = () => {
 audio.ontimeupdate = () => {
     const slider = document.getElementById('progress-slider');
     const currentTime = document.getElementById('current-time');
-    
     slider.value = (audio.currentTime / audio.duration) * 100 || 0;
-    
     const m = Math.floor(audio.currentTime / 60);
     const s = ("0" + Math.floor(audio.currentTime % 60)).slice(-2);
     currentTime.innerText = m + ":" + s;
@@ -235,8 +222,16 @@ document.getElementById('volume-slider').oninput = (e) => {
     audio.volume = e.target.value;
 };
 
-// --- ЗАПУСК ---
+// --- ЗАПУСК И СТИЛИЗАЦИЯ ТЕКСТА ВОЗРАСТА ---
 window.onload = () => {
     makeDraggable(document.getElementById("bio-card"), "bio-handle");
     makeDraggable(document.getElementById("music-player"), "player-handle");
+
+    // Прямо здесь делаем текст возраста меньше и тусклее
+    const ageBadge = document.querySelector('.age-badge');
+    if (ageBadge) {
+        ageBadge.style.fontSize = "0.75rem"; // уменьшили размер
+        ageBadge.style.opacity = "0.6";      // сделали тусклее
+        ageBadge.style.fontWeight = "400";   // убрали жирность, если была
+    }
 };
