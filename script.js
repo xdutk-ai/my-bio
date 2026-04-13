@@ -1,237 +1,179 @@
-// --- КОНФИГУРАЦИЯ ---
-const myCrosshair = "CSGO-sABZu-4owC8-jnHXD-Z3qXe-2TOpP"; 
-let canCelebrate = true; 
-const cooldownTime = 3000; 
+const CS_CODE = "CSGO-sABZu-4owC8-jnHXD-Z3qXe-2TOpP";
+let isCelebrationActive = false;
+let smokeTimer = null;
 
-// Элементы аватара
-const avatarContainer = document.getElementById('main-avatar');
+const cursor = document.getElementById('custom-cursor');
+const smokeBox = document.getElementById('smoke-global-container');
+const avatarBox = document.getElementById('main-avatar-container');
 const imgNormal = document.getElementById('avatar-normal');
 const imgAngry = document.getElementById('avatar-angry');
-const smokeContainer = document.getElementById('smoke');
-let smokeInterval;
+const greenDot = document.getElementById('green-dot-trigger');
 
-// --- ЛОГИКА РЕЖИМА ЯРОСТИ (ЗАЖАТИЕ) ---
-function startRage() {
-    clearInterval(smokeInterval);
-    avatarContainer.classList.add('rage-active');
-    
-    // Переключаем на злую утку
-    imgNormal.classList.remove('visible');
-    imgNormal.classList.add('hidden');
-    imgAngry.classList.remove('hidden');
-    imgAngry.classList.add('visible');
+// ЛОГИКА КУРСОРА
+document.addEventListener('mousemove', (e) => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+});
 
-    // Запуск дыма
-    smokeInterval = setInterval(() => {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = (Math.random() * 40 - 20) + 'px';
-        smokeContainer.appendChild(p);
-        setTimeout(() => p.remove(), 1200);
-    }, 80);
+document.querySelectorAll('button, a, .dot, .avatar-frame-circle, input[type=range]').forEach(el => {
+    el.onmouseenter = () => cursor.classList.add('cursor-hover-state');
+    el.onmouseleave = () => cursor.classList.remove('cursor-hover-state');
+});
+
+// ЛОГИКА ДЫМА ПРИ НАЖАТИИ
+function startRage(e) {
+    avatarBox.classList.add('rage-mode-active');
+    imgNormal.classList.replace('visible-layer', 'hidden-layer');
+    imgAngry.classList.replace('hidden-layer', 'visible-layer');
+    if (!smokeTimer) {
+        smokeTimer = setInterval(() => {
+            const rect = avatarBox.getBoundingClientRect();
+            const p = document.createElement('div');
+            p.className = 'smoke-particle-element';
+            p.style.left = (rect.left + rect.width / 2 + (Math.random() * 40 - 20)) + 'px';
+            p.style.top = (rect.top + 20) + 'px';
+            p.style.setProperty('--random-x', (Math.random() * 100 - 50) + 'px');
+            smokeBox.appendChild(p);
+            setTimeout(() => p.remove(), 1500);
+        }, 80);
+    }
 }
 
 function stopRage() {
-    avatarContainer.classList.remove('rage-active');
-    // Возвращаем добрую утку
-    imgAngry.classList.remove('visible');
-    imgAngry.classList.add('hidden');
-    imgNormal.classList.remove('hidden');
-    imgNormal.classList.add('visible');
-    clearInterval(smokeInterval);
+    avatarBox.classList.remove('rage-mode-active');
+    imgAngry.classList.replace('visible-layer', 'hidden-layer');
+    imgNormal.classList.replace('hidden-layer', 'visible-layer');
+    clearInterval(smokeTimer);
+    smokeTimer = null;
 }
 
-// --- ФУНКЦИЯ СНЕГА (ВЛЕВО И ДОЛГО) ---
-function startSnowfall() {
-    var duration = 6 * 1000; 
-    var end = Date.now() + duration;
-
-    (function frame() {
-        confetti({
-            particleCount: 1,
-            startVelocity: 0,
-            ticks: 400,
-            gravity: 0.5,
-            origin: {
-                x: Math.random(),
-                y: Math.random() * 0.9 - 0.2
-            },
-            colors: ['#ffffff'], 
-            shapes: ['circle'],
-            scalar: 0.7,
-            drift: -1.5, 
-            angle: 110   
-        });
-
-        if (Date.now() < end) {
-            requestAnimationFrame(frame);
-        }
-    }());
-}
-
-// --- РАНДОМАЙЗЕР КОНФЕТТИ С КД И ШАНСАМИ ---
+// ЭФФЕКТЫ КОНФЕТТИ С ШАНСОМ
 function celebrateRandom() {
-    if (!canCelebrate) return;
+    if (isCelebrationActive) return;
+    isCelebrationActive = true;
+    greenDot.classList.add('dot-on-cooldown');
 
-    const colors = ['#66c0f4', '#ffbd2e', '#ff5f56', '#27c93f', '#a371f7'];
     const chance = Math.random() * 100;
 
-    if (chance <= 15) {
-        startSnowfall();
-    } else if (chance <= 40) {
+    if (chance < 33) {
+        // Эффект 1: Нижний взрыв
         confetti({
-            particleCount: 80,
+            particleCount: 200,
+            spread: 90,
+            origin: { y: 0.9 },
+            colors: ['#66c0f4', '#ffffff', '#27c93f']
+        });
+        resetCooldown(3000);
+    } else if (chance < 66) {
+        // Эффект 2: Боковые взрывы
+        confetti({
+            particleCount: 100,
             angle: 60,
             spread: 55,
-            origin: { x: 0, y: 0.8 },
-            colors: colors
+            origin: { x: 0, y: 0.7 },
+            colors: ['#66c0f4', '#ffbd2e']
         });
         setTimeout(() => {
             confetti({
-                particleCount: 80,
+                particleCount: 100,
                 angle: 120,
                 spread: 55,
-                origin: { x: 1, y: 0.8 },
-                colors: colors
+                origin: { x: 1, y: 0.7 },
+                colors: ['#66c0f4', '#ff5f56']
             });
-        }, 150);
-    } else if (chance <= 70) {
-        confetti({
-            particleCount: 100,
-            spread: 160,
-            origin: { y: 0, x: 0.5 },
-            colors: colors
-        });
+        }, 300);
+        resetCooldown(4000);
     } else {
-        confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 1, x: 0.5 },
-            colors: colors
-        });
-    }
+        // Эффект 3: Снегопад
+        const duration = 5000;
+        const end = Date.now() + duration;
 
-    canCelebrate = false;
-    const btn = event.currentTarget; 
-    
-    if (btn && btn.style) {
-        btn.style.opacity = "0.5";
-        btn.style.cursor = "default"; 
-    }
+        (function frame() {
+            confetti({
+                particleCount: 1,
+                angle: 90,
+                spread: 360,
+                ticks: 200,
+                origin: { x: Math.random(), y: -0.1 },
+                colors: ['#ffffff'],
+                gravity: 0.4,
+                scalar: 0.8,
+                drift: Math.random() * 0.4 - 0.2
+            });
 
-    setTimeout(() => {
-        canCelebrate = true;
-        if (btn && btn.style) {
-            btn.style.opacity = "1";
-            btn.style.cursor = "pointer";
-        }
-    }, cooldownTime);
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
+        resetCooldown(6000);
+    }
 }
 
-// --- КОПИРОВАНИЕ ПРИЦЕЛА ---
-function copyCrosshair(btn) {
-    navigator.clipboard.writeText(myCrosshair).then(() => {
-        const tip = btn.querySelector('.copy-tooltip');
-        tip.classList.add('show');
-        setTimeout(() => tip.classList.remove('show'), 1200);
-    });
+function resetCooldown(time) {
+    setTimeout(() => { 
+        isCelebrationActive = false; 
+        greenDot.classList.remove('dot-on-cooldown');
+    }, time);
 }
 
-// --- ПЕРЕТЯГИВАНИЕ ОКОН (БЕЗ СТРЕЛОЧЕК) ---
-function makeDraggable(el, handleId) {
-    let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
-    const handle = document.getElementById(handleId);
-    
-    handle.style.cursor = "pointer"; 
+// УПРАВЛЕНИЕ ОКНАМИ
+function closeWin(id) {
+    const el = document.getElementById(id);
+    el.classList.add('window-is-closed');
+    setTimeout(() => el.classList.remove('window-is-closed'), 3000);
+}
 
-    handle.onmousedown = (e) => {
+function collapseWin(id) {
+    document.getElementById(id).classList.toggle('window-is-collapsed');
+}
+
+function setupDrag(elId, hId) {
+    const el = document.getElementById(elId);
+    const h = document.getElementById(hId);
+    h.onmousedown = (e) => {
         if (e.target.classList.contains('dot')) return;
-        e.preventDefault();
-        handle.style.cursor = "grabbing"; 
-        p3 = e.clientX; 
-        p4 = e.clientY;
-        
-        document.onmousemove = (e) => {
-            p1 = p3 - e.clientX; 
-            p2 = p4 - e.clientY;
-            p3 = e.clientX; 
-            p4 = e.clientY;
-            
-            let newTop = el.offsetTop - p2;
-            let newLeft = el.offsetLeft - p1;
-
-            const maxTop = window.innerHeight - el.offsetHeight;
-            const maxLeft = window.innerWidth - el.offsetWidth;
-
-            if (newTop < 0) newTop = 0;
-            if (newTop > maxTop) newTop = maxTop;
-            if (newLeft < 0) newLeft = 0;
-            if (newLeft > maxLeft) newLeft = maxLeft;
-
-            el.style.top = newTop + "px";
-            el.style.left = newLeft + "px";
-            el.style.bottom = "auto"; 
-            el.style.right = "auto";
+        let mx = e.clientX, my = e.clientY;
+        document.onmousemove = (de) => {
+            el.style.top = (el.offsetTop - (my - de.clientY)) + "px";
+            el.style.left = (el.offsetLeft - (mx - de.clientX)) + "px";
+            mx = de.clientX; my = de.clientY;
+            el.style.bottom = 'auto'; el.style.right = 'auto';
         };
-        
-        document.onmouseup = () => { 
-            document.onmousemove = null; 
-            handle.style.cursor = "pointer"; 
-        };
+        document.onmouseup = () => document.onmousemove = null;
     };
 }
 
-function toggleWin(id) {
-    const w = document.getElementById(id);
-    w.style.opacity = "0.2";
-    w.style.transform = "scale(0.95)"; 
-    setTimeout(() => {
-        w.style.opacity = "1";
-        w.style.transform = "scale(1)";
-    }, 1000);
-}
+// ЛОГИКА ПЛЕЕРА
+const audio = document.getElementById('background-audio-element');
+const btn = document.getElementById('play-pause-toggle');
+const icon = document.getElementById('play-icon');
+const pSlider = document.getElementById('track-progress-slider');
+const vSlider = document.getElementById('track-volume-slider');
 
-// --- МУЗЫКАЛЬНЫЙ ПЛЕЕР ---
-const audio = document.getElementById('bg-audio');
-const playBtn = document.getElementById('play-pause');
-
-playBtn.onclick = () => {
-    if (audio.paused) { 
-        audio.play(); 
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>'; 
-    } else { 
-        audio.pause(); 
-        playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
-    }
+btn.onclick = () => {
+    if (audio.paused) { audio.play(); icon.classList.replace('fa-play', 'fa-pause'); }
+    else { audio.pause(); icon.classList.replace('fa-pause', 'fa-play'); }
 };
 
 audio.ontimeupdate = () => {
-    const slider = document.getElementById('progress-slider');
-    const currentTime = document.getElementById('current-time');
-    slider.value = (audio.currentTime / audio.duration) * 100 || 0;
-    const m = Math.floor(audio.currentTime / 60);
-    const s = ("0" + Math.floor(audio.currentTime % 60)).slice(-2);
-    currentTime.innerText = m + ":" + s;
+    pSlider.value = (audio.currentTime / audio.duration) * 100 || 0;
+    const f = (t) => Math.floor(t/60) + ":" + ("0" + Math.floor(t%60)).slice(-2);
+    document.getElementById('current-time-val').innerText = f(audio.currentTime);
+    if (!isNaN(audio.duration)) document.getElementById('total-duration-val').innerText = f(audio.duration);
 };
 
-document.getElementById('progress-slider').oninput = (e) => {
-    audio.currentTime = (e.target.value / 100) * audio.duration;
-};
+pSlider.oninput = () => audio.currentTime = (pSlider.value / 100) * audio.duration;
+vSlider.oninput = () => audio.volume = vSlider.value;
 
-document.getElementById('volume-slider').oninput = (e) => {
-    audio.volume = e.target.value;
-};
+function copyCrosshair(b) {
+    navigator.clipboard.writeText(CS_CODE).then(() => {
+        const t = b.querySelector('.copy-success-tooltip');
+        t.classList.add('tooltip-visible');
+        setTimeout(() => t.classList.remove('tooltip-visible'), 1800);
+    });
+}
 
-// --- ЗАПУСК И СТИЛИЗАЦИЯ ТЕКСТА ВОЗРАСТА ---
 window.onload = () => {
-    makeDraggable(document.getElementById("bio-card"), "bio-handle");
-    makeDraggable(document.getElementById("music-player"), "player-handle");
-
-    // Прямо здесь делаем текст возраста меньше и тусклее
-    const ageBadge = document.querySelector('.age-badge');
-    if (ageBadge) {
-        ageBadge.style.fontSize = "0.75rem"; // уменьшили размер
-        ageBadge.style.opacity = "0.6";      // сделали тусклее
-        ageBadge.style.fontWeight = "400";   // убрали жирность, если была
-    }
+    setupDrag('bio-card', 'bio-handle');
+    setupDrag('music-player-window', 'player-handle');
 };

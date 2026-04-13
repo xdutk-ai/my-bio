@@ -1,182 +1,111 @@
-const canvas = document.getElementById('garland-canvas');
+/**
+ * effects.js
+ * Содержит логику для постоянных светлячков и сезонной гирлянды.
+ */
+
+const canvas = document.getElementById('effects-canvas');
 const ctx = canvas.getContext('2d');
+let particles = [];
 
-let width, height;
-let points = [];
-let sticks = [];
-const numPoints = 25; // Кількість сегментів гірлянди (більше - м'якше висить)
-const gravity = 0.5;
-const friction = 0.98;
-const bounce = 0.9;
-const tension = 0.8; // Жорсткість дроту
-
-let mouse = { x: 0, y: 0, down: false, p: null };
-
-// Налаштування кольорів лампочок
-const bulbColors = ['#ff5f56', '#ffbd2e', '#27c93f', '#66c0f4', '#a371f7'];
-
-function init() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    points = [];
-    sticks = [];
-
-    // Гірлянда висить дугою від краю до краю
-    const startX = -50;
-    const endX = width + 50;
-    const gap = (endX - startX) / (numPoints - 1);
-    const sagY = 150; // Наскільки сильно провисає дуга
-
-    for (let i = 0; i < numPoints; i++) {
-        let x = startX + i * gap;
-        // Параболічна дуга
-        let norm = i / (numPoints - 1);
-        let y = 10 + Math.sin(norm * Math.PI) * sagY;
-
-        points.push({
-            x: x,
-            y: y,
-            oldX: x,
-            oldY: y,
-            pinned: (i === 0 || i === numPoints - 1), // Закріплюємо тільки краї
-            color: bulbColors[i % bulbColors.length]
-        });
-
-        if (i > 0) {
-            sticks.push({
-                p0: points[i - 1],
-                p1: points[i],
-                length: gap * 0.9 // Дріт трохи коротший за відстань, щоб тягнуло
-            });
-        }
-    }
+/**
+ * Функция изменения размера холста под окно браузера
+ */
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
 
-function updatePoints() {
-    for (let i = 0; i < points.length; i++) {
-        let p = points[i];
-        if (!p.pinned) {
-            let vx = (p.x - p.oldX) * friction;
-            let vy = (p.y - p.oldY) * friction;
-
-            p.oldX = p.x;
-            p.oldY = p.y;
-            p.x += vx;
-            p.y += vy;
-            p.y += gravity;
-        }
+/**
+ * Класс Particle для создания светлячков и элементов гирлянды
+ */
+class Particle {
+    constructor(type) {
+        this.type = type; // 'firefly' или 'garland'
+        this.init();
     }
-}
 
-function updateSticks() {
-    for (let i = 0; i < sticks.length; i++) {
-        let s = sticks[i];
-        let dx = s.p1.x - s.p0.x;
-        let dy = s.p1.y - s.p0.y;
-        let distance = Math.sqrt(dx * dx + dy * dy);
-        let difference = s.length - distance;
-        let percent = difference / distance / 2;
-        let offsetX = dx * percent * tension;
-        let offsetY = dy * percent * tension;
-
-        if (!s.p0.pinned) {
-            s.p0.x -= offsetX;
-            s.p0.y -= offsetY;
-        }
-        if (!s.p1.pinned) {
-            s.p1.x += offsetX;
-            s.p1.y += offsetY;
-        }
+    init() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.alpha = Math.random();
+        this.fade = Math.random() * 0.02 + 0.005;
+        this.color = this.type === 'firefly' ? '#66c0f4' : '#ffeb3b';
     }
-}
 
-function draw() {
-    ctx.clearRect(0, 0, width, height);
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha += this.fade;
 
-    // Малюємо дріт
-    ctx.beginPath();
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = 'rgba(20, 20, 20, 0.8)';
-    for (let i = 0; i < sticks.length; i++) {
-        let s = sticks[i];
-        ctx.moveTo(s.p0.x, s.p0.y);
-        ctx.lineTo(s.p1.x, s.p1.y);
-    }
-    ctx.stroke();
-
-    // Малюємо лампочки
-    for (let i = 0; i < points.length; i++) {
-        let p = points[i];
+        // Эффект мерцания
+        if (this.alpha > 0.8 || this.alpha < 0.1) {
+            this.fade *= -1;
+        }
         
-        // Світіння (Neon Glow)
+        // Отскок от границ экрана
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+
+    draw() {
+        ctx.save();
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = p.color;
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
-        
-        // Сама лампочка (яскравіша серцевина)
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-        ctx.fillStyle = 'white';
-        ctx.shadowBlur = 0; // Прибираємо тінь для центру
-        ctx.fill();
+        ctx.restore();
     }
 }
 
-function loop() {
-    updatePoints();
-    // Декілька ітерацій для стабільності пружин
-    for(let i=0; i<5; i++) {
-        updateSticks();
-    }
+/**
+ * Инициализация всех эффектов
+ */
+function initEffects() {
+    resize();
+    particles = [];
     
-    // Взаємодія з мишкою
-    if(mouse.down && mouse.p) {
-        mouse.p.x = mouse.x;
-        mouse.p.y = mouse.y;
+    // Светлячки — работают ВСЕГДА (60 штук)
+    for (let i = 0; i < 60; i++) {
+        particles.push(new Particle('firefly'));
     }
+
+    // Проверка текущей даты для гирлянды
+    const now = new Date();
+    const currentMonth = now.getMonth(); // Январь - 0, Июнь - 5
+    const currentDate = now.getDate();
     
-    draw();
-    requestAnimationFrame(loop);
-}
-
-// Пошук найближчої точки до мишки
-function findNearestPoint(x, y) {
-    let nearest = null;
-    let minDst = 20; // Радіус захвату
-
-    for(let p of points) {
-        if(p.pinned) continue;
-        let dx = p.x - x;
-        let dy = p.y - y;
-        let dst = Math.sqrt(dx*dx + dy*dy);
-        if(dst < minDst) {
-            minDst = dst;
-            nearest = p;
+    // ПРОВЕРКА: 10 июня (Month 5, Date 10)
+    const isJune10 = (currentMonth === 5 && currentDate === 10);
+    
+    if (isJune10) {
+        // Добавляем гирлянду только 10 июня
+        for (let i = 0; i < 40; i++) {
+            particles.push(new Particle('garland'));
         }
     }
-    return nearest;
 }
 
-// Івенти мишки
-window.addEventListener('mousedown', e => {
-    mouse.down = true;
-    mouse.p = findNearestPoint(e.clientX, e.clientY);
-});
-window.addEventListener('mousemove', e => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-    // Змінюємо курсор, якщо навели на лампочку
-    canvas.style.cursor = findNearestPoint(e.clientX, e.clientY) ? 'grab' : 'default';
-});
-window.addEventListener('mouseup', () => {
-    mouse.down = false;
-    mouse.p = null;
-});
+/**
+ * Главный цикл анимации
+ */
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animate);
+}
 
-window.addEventListener('resize', init);
+// Слушатели событий
+window.addEventListener('resize', resize);
 
-init();
-loop();
+// Старт
+initEffects();
+animate();
