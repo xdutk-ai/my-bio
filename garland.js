@@ -1,26 +1,24 @@
 /**
- * effects.js
- * Содержит логику для постоянных светлячков и сезонной гирлянды.
+ * garland.js
+ * Фоновый эффект + настоящая гирлянда только 10 июня
  */
 
-const canvas = document.getElementById('effects-canvas');
+const canvas = document.getElementById('garland-canvas');
 const ctx = canvas.getContext('2d');
+const juneGarland = document.getElementById('june-garland');
 let particles = [];
+let isDraggingGarland = false;
+let dragStart = { x: 0, y: 0 };
+let currentOffset = { x: 0, y: 0 };
+let releaseEase = 0;
 
-/**
- * Функция изменения размера холста под окно браузера
- */
 function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
 
-/**
- * Класс Particle для создания светлячков и элементов гирлянды
- */
 class Particle {
-    constructor(type) {
-        this.type = type; // 'firefly' или 'garland'
+    constructor() {
         this.init();
     }
 
@@ -28,34 +26,35 @@ class Particle {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
         this.size = Math.random() * 2 + 1;
-        this.speedX = (Math.random() - 0.5) * 0.5;
-        this.speedY = (Math.random() - 0.5) * 0.5;
-        this.alpha = Math.random();
-        this.fade = Math.random() * 0.02 + 0.005;
-        this.color = this.type === 'firefly' ? '#66c0f4' : '#ffeb3b';
+        this.speedX = (Math.random() - 0.5) * 0.35;
+        this.speedY = (Math.random() - 0.5) * 0.35;
+        this.alpha = Math.random() * 0.45 + 0.35;
+        this.fade = Math.random() * 0.02 + 0.008;
+        this.color = '#66c0f4';
+        this.wobble = Math.random() * Math.PI * 2;
+        this.wobbleSpeed = Math.random() * 0.04 + 0.01;
     }
 
     update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
+        this.x += this.speedX + Math.sin(this.wobble) * 0.08;
+        this.y += this.speedY + Math.cos(this.wobble) * 0.05;
+        this.wobble += this.wobbleSpeed;
         this.alpha += this.fade;
 
-        // Эффект мерцания
-        if (this.alpha > 0.8 || this.alpha < 0.1) {
+        if (this.alpha > 0.8 || this.alpha < 0.15) {
             this.fade *= -1;
         }
-        
-        // Отскок от границ экрана
+
         if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
         if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
     }
 
     draw() {
         ctx.save();
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = this.color;
         ctx.globalAlpha = this.alpha;
         ctx.fillStyle = this.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
@@ -63,37 +62,14 @@ class Particle {
     }
 }
 
-/**
- * Инициализация всех эффектов
- */
 function initEffects() {
     resize();
     particles = [];
-    
-    // Светлячки — работают ВСЕГДА (60 штук)
     for (let i = 0; i < 60; i++) {
-        particles.push(new Particle('firefly'));
-    }
-
-    // Проверка текущей даты для гирлянды
-    const now = new Date();
-    const currentMonth = now.getMonth(); // Январь - 0, Июнь - 5
-    const currentDate = now.getDate();
-    
-    // ПРОВЕРКА: 10 июня (Month 5, Date 10)
-    const isJune10 = (currentMonth === 5 && currentDate === 10);
-    
-    if (isJune10) {
-        // Добавляем гирлянду только 10 июня
-        for (let i = 0; i < 40; i++) {
-            particles.push(new Particle('garland'));
-        }
+        particles.push(new Particle());
     }
 }
 
-/**
- * Главный цикл анимации
- */
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     particles.forEach(p => {
@@ -103,9 +79,112 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// Слушатели событий
-window.addEventListener('resize', resize);
+function isJune10() {
+    const now = new Date();
+    return now.getMonth() === 5 && now.getDate() === 10;
+}
 
-// Старт
-initEffects();
-animate();
+function setupJuneGarland() {
+    if (!juneGarland) return;
+    if (!isJune10()) {
+        juneGarland.classList.remove('visible');
+        juneGarland.classList.add('hidden');
+        juneGarland.innerHTML = '';
+        return;
+    }
+
+    juneGarland.classList.remove('hidden');
+    juneGarland.classList.add('visible');
+    juneGarland.style.pointerEvents = 'auto';
+    juneGarland.innerHTML = `
+        <div class="garland-wire"></div>
+        <div class="garland-bulbs"></div>
+    `;
+
+    const bulbsContainer = juneGarland.querySelector('.garland-bulbs');
+    const colors = [
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(255, 88, 88, 0.92))',
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(255, 209, 92, 0.92))',
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(100, 230, 255, 0.92))',
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(110, 115, 255, 0.92))',
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(120, 255, 160, 0.92))'
+    ];
+
+    for (let i = 0; i < 10; i++) {
+        const bulb = document.createElement('div');
+        bulb.className = 'garland-bulb glow';
+        bulb.style.background = colors[i % colors.length];
+        bulb.dataset.index = i;
+        bulb.style.setProperty('--twist', `${Math.sin(i / 2) * 8}deg`);
+        bulb.style.transform = `rotate(${Math.sin(i / 2) * 6}deg)`;
+        bulbsContainer.appendChild(bulb);
+    }
+
+    juneGarland.addEventListener('pointerdown', startGarlandDrag);
+    window.addEventListener('pointermove', moveGarlandDrag);
+    window.addEventListener('pointerup', endGarlandDrag);
+    window.addEventListener('pointercancel', endGarlandDrag);
+}
+
+function startGarlandDrag(event) {
+    if (!isJune10()) return;
+    isDraggingGarland = true;
+    dragStart.x = event.clientX;
+    dragStart.y = event.clientY;
+    currentOffset.x = 0;
+    currentOffset.y = 0;
+    releaseEase = 0;
+    event.preventDefault();
+}
+
+function moveGarlandDrag(event) {
+    if (!isDraggingGarland) return;
+    const dx = event.clientX - dragStart.x;
+    const dy = event.clientY - dragStart.y;
+    currentOffset.x = Math.max(-80, Math.min(80, dx));
+    currentOffset.y = Math.max(-40, Math.min(40, dy));
+    updateGarlandTransform();
+}
+
+function endGarlandDrag() {
+    if (!isDraggingGarland) return;
+    isDraggingGarland = false;
+    releaseEase = 1;
+    requestAnimationFrame(animateGarlandRelease);
+}
+
+function updateGarlandTransform() {
+    const bulbs = juneGarland.querySelectorAll('.garland-bulb');
+    bulbs.forEach((bulb, index) => {
+        const factor = (index / (bulbs.length - 1)) * 2 - 1;
+        const sway = factor * currentOffset.x * 0.18;
+        const drop = Math.abs(factor) * currentOffset.y * 0.45;
+        bulb.style.transform = `translate(${sway}px, ${drop}px) rotate(${sway * 0.2 + parseFloat(bulb.dataset.index) * 1.2}deg)`;
+    });
+    const wire = juneGarland.querySelector('.garland-wire');
+    if (wire) {
+        const middle = currentOffset.y * 0.15;
+        wire.style.transform = `translateY(${middle}px)`;
+    }
+}
+
+function animateGarlandRelease() {
+    if (releaseEase <= 0 || isDraggingGarland) return;
+    currentOffset.x *= 0.92;
+    currentOffset.y *= 0.88;
+    if (Math.abs(currentOffset.x) < 0.6) currentOffset.x = 0;
+    if (Math.abs(currentOffset.y) < 0.4) currentOffset.y = 0;
+    updateGarlandTransform();
+    if (currentOffset.x !== 0 || currentOffset.y !== 0) {
+        requestAnimationFrame(animateGarlandRelease);
+    }
+}
+
+window.addEventListener('resize', resize);
+window.addEventListener('load', () => {
+    resize();
+    initEffects();
+    setupJuneGarland();
+    animate();
+    requestAnimationFrame(animateGarlandRelease);
+});
