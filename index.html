@@ -1,102 +1,142 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xdutk | Bio - Extended Code Edition</title>
+    <title>xdutk</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-    <div id="custom-cursor"></div>
-    <div id="smoke-global-container"></div>
+<div class="notifications" id="notifications"></div>
+
+<div class="loader" id="loader">
+    <div class="ispinner" id="loader-spinner">
+        <div class="ispinner-blade"></div>
+        <div class="ispinner-blade"></div>
+        <div class="ispinner-blade"></div>
+        <div class="ispinner-blade"></div>
+        <div class="ispinner-blade"></div>
+        <div class="ispinner-blade"></div>
+        <div class="ispinner-blade"></div>
+        <div class="ispinner-blade"></div>
+    </div>
+    <button class="cursor-hint" id="loader-enter" type="button" hidden>enter</button>
+</div>
+
+<div class="spotlight-overlay" id="spotlight-overlay" hidden>
+    <div class="spotlight" id="spotlight">
+        <div class="spotlight-input-wrapper">
+            <i class="fas fa-search spotlight-icon"></i>
+            <input type="text" class="spotlight-input" placeholder="Search..." id="spotlight-input" autocomplete="off">
+            <span class="spotlight-shortcut">esc</span>
+        </div>
+        <div class="spotlight-results" id="spotlight-results"></div>
+    </div>
+</div>
+
+<div class="context-menu" id="context-menu" hidden></div>
+
+<button class="keyboard-hint" id="keyboard-hint" type="button">
+    <i class="fas fa-search"></i>
+    <span>search</span>
+    <kbd>Ctrl</kbd><kbd>K</kbd>
+</button>
+<!-- в•ђв•ђ РљРЈР РЎРћР  в•ђв•ђ -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- в•ђв•ђ Р’Р†Р”Р•Рћ Р¤РћРќ в•ђв•ђ -->
+    <div class="bg-video-wrap">
+        <video autoplay muted loop playsinline id="bg-video">
+            <source src="coolbg.webm" type="video/webm">
+        </video>
+        <div class="bg-overlay"></div>
+    </div>
+
+    <!-- в•ђв•ђ SMOKE в•ђв•ђ -->
+    <div id="smoke-box"></div>
+
+    <!-- в•ђв•ђ GARLAND в•ђв•ђ -->
     <canvas id="garland-canvas"></canvas>
-    <div id="june-garland" class="june-garland"></div>
 
-    <div class="main-wrapper">
-        <div id="bio-card" class="bio-card">
-            <div class="card-header" id="bio-handle">
-                <div class="dots-container">
-                    <div class="dots-wrapper">
-                        <span class="dot red-dot" onclick="closeWin('bio-card')"></span>
-                        <span class="dot yellow-dot" onclick="collapseWin('bio-card')"></span>
-                        <span class="dot green-dot" id="green-dot-trigger" onclick="celebrateRandom()"></span>
-                    </div>
-                </div>
-                <div class="header-text-area">
-                    <span class="header-title-text">C:\Users\xdutk\profile.exe</span>
-                </div>
+    <!-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ BIO CARD в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ -->
+    <div id="bio-card" class="bio-card">
+        <div class="title-bar" id="bio-drag">
+            <div class="dots">
+                <span class="dot dot-red" onclick="closeCard()"></span>
+                <span class="dot dot-yellow" onclick="collapseCard()"></span>
+                <span class="dot dot-green" id="green-dot" onclick="shootFireworks()"></span>
             </div>
-            
-            <div class="content-anim-wrapper">
-                <div class="card-content-inner">
-                    <div id="main-avatar-container" class="avatar-frame-circle" 
-                         onmousedown="startRage(event)" 
-                         onmouseup="stopRage()" 
-                         onmouseleave="stopRage()"
-                         ontouchstart="startRage(event)" 
-                         ontouchend="stopRage()">
-                        <div class="avatar-images-stack">
-                            <img src="avatar.png" alt="xdutk" id="avatar-normal" class="avatar-img-layer visible-layer" draggable="false">
-                            <img src="angryavatar.jpg" alt="xdutk angry" id="avatar-angry" class="avatar-img-layer hidden-layer" draggable="false">
-                        </div>
-                    </div>
-
-                    <h1 class="user-nickname">xdutk</h1>
-                    <div class="user-age-badge">Мені 12 років</div>
-                    
-                    <div class="links-navigation-grid">
-                        <a href="https://t.me/xdutk" target="_blank" class="navigation-liquid-btn">
-                            <i class="fab fa-telegram-plane"></i> <span class="btn-text">Telegram</span>
-                        </a>
-                        <button class="navigation-liquid-btn" onclick="copyCrosshair(this)">
-                            <i class="fas fa-crosshairs"></i> <span class="btn-text">Приціл CS</span>
-                            <span class="copy-success-tooltip">Скопійовано!</span>
-                        </button>
-                        <a href="https://drive.google.com/uc?export=download&id=1og3EIBfLlzkgD0lJ263zr8THlrRXuH_3" class="navigation-liquid-btn">
-                            <i class="fas fa-file-archive"></i> <span class="btn-text">Збірка Майн</span>
-                        </a>
-                        <a href="https://steamcommunity.com/profiles/76561199841630286/" target="_blank" class="navigation-liquid-btn">
-                            <i class="fab fa-steam"></i> <span class="btn-text">Steam</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <span class="bar-title" data-key="barTitle">bio.app</span>
+            <div style="width:52px"></div>
         </div>
 
-        <div id="music-player-window" class="music-widget-compact">
-            <div class="card-header" id="player-handle">
-                <div class="header-text-area">
-                    <span class="header-title-text">media_player.exe</span>
-                </div>
+        <div class="card-body" id="card-body">
+            <div class="avatar-wrap" id="avatar-wrap">
+                <img src="avatar.png" id="av-normal" class="av shown" draggable="false">
+                <img src="angryavatar.jpg" id="av-angry" class="av hidden" draggable="false">
             </div>
-            
-            <div class="content-anim-wrapper">
-                <div class="player-body-content">
-                    <div class="player-controls-row">
-                        <button id="play-pause-toggle" class="circular-play-btn"><i class="fas fa-play" id="play-icon"></i></button>
-                        <div class="track-meta-data">
-                            <div class="scrolling-text-container"><span id="current-track-name">background_ambient_music.mp3</span></div>
-                            <div class="track-timer-display"><span id="current-time-val">0:00</span> / <span id="total-duration-val">0:00</span></div>
-                        </div>
-                    </div>
-                    <div class="player-sliders-column">
-                        <div class="slider-group">
-                            <label class="slider-label">Progress</label>
-                            <input type="range" id="track-progress-slider" class="custom-range-input" min="0" max="100" value="0">
-                        </div>
-                        <div class="slider-group">
-                            <label class="slider-label">Volume</label>
-                            <input type="range" id="track-volume-slider" class="custom-range-input" min="0" max="1" step="0.01" value="0.5">
-                        </div>
-                    </div>
-                </div>
+
+            <h1 class="username animated-gradient">xdutk</h1>
+            <p class="userbio"><span id="typed-text">I love dogs&lt;3</span><span class="text-cursor" id="text-cursor">|</span></p>
+
+            <div class="links">
+                <a href="https://t.me/xdutk" target="_blank" class="btn">
+                    <i class="fab fa-telegram-plane"></i>
+                    <span data-key="tg">write to me</span>
+                </a>
+                <button class="btn" onclick="copyCS(this)">
+                    <i class="fas fa-crosshairs"></i>
+                    <span data-key="cs">CS crosshair</span>
+                    <span class="copy-tip">Copied!</span>
+                </button>
+                <a href="https://drive.google.com/uc?export=download&id=1og3EIBfLlzkgD0lJ263zr8THlrRXuH_3" class="btn">
+                    <i class="fas fa-cube"></i>
+                    <span data-key="mc">Minecraft pack</span>
+                </a>
+                <a href="https://steamcommunity.com/profiles/76561199841630286/" target="_blank" class="btn">
+                    <i class="fab fa-steam"></i>
+                    <span data-key="steam">Steam</span>
+                </a>
             </div>
-            <audio id="background-audio-element" src="music.mp3" loop></audio>
         </div>
     </div>
-    <script src="garland.js"></script>
-    <script src="script.js"></script>
+
+    <!-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ РџР›Р•Р•Р  в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ -->
+    <div id="player" class="player">
+        <div class="player-drag" id="player-drag">
+            <div class="pl-top">
+                <div class="pl-art" id="pl-art"><img src="track-cover.svg" alt="" class="pl-cover"><i class="fas fa-music pl-art-icon"></i></div>
+                <div class="pl-info">
+                    <div class="pl-track" id="track-name">&#1059;&#1083;&#1080;&#1094;&#1072; &#1057;&#1090;&#1072;&#1083;&#1077;&#1074;&#1072;&#1088;&#1086;&#1074;</div>
+                    <div class="pl-artist" id="pl-artist">&#1042;&#1072;&#1083;&#1077;&#1085;&#1090;&#1080;&#1085; &#1057;&#1090;&#1088;&#1099;&#1082;&#1072;&#1083;&#1086;</div>
+                </div>
+                <button class="pl-pause-btn" onclick="togglePlay()">
+                    <i class="fas fa-play" id="play-icon"></i>
+                </button>
+            </div>
+
+            <div class="pl-progress-row">
+                <span class="pl-time" id="cur-t">0:00</span>
+                <div class="pl-bar-wrap">
+                    <input type="range" id="prog" class="pl-bar" min="0" max="100" value="0">
+                </div>
+                <span class="pl-time" id="tot-t">0:00</span>
+            </div>
+
+            <div class="pl-vol-row">
+                <i class="fas fa-volume-down pl-vol-icon"></i>
+                <input type="range" id="vol" class="pl-bar pl-vol-bar" min="0" max="1" step="0.01" value="0.5">
+                <i class="fas fa-volume-up pl-vol-icon"></i>
+            </div>
+        </div>
+        <audio id="audio" src="music.mp3" loop></audio>
+    </div>
+
+<script src="garland.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
+
