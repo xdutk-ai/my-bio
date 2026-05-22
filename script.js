@@ -449,12 +449,155 @@ function initExtraEasterEggs() {
         toast('duck fireworks');
     });
 }
+
+function initWowPolish() {
+    const card = document.getElementById('bio-card');
+    const player = document.getElementById('player');
+    const audio = document.getElementById('audio');
+    const buttons = [...document.querySelectorAll('.btn')];
+    if (!card) return;
+
+    function burstAt(x, y, amount = 10) {
+        for (let i = 0; i < amount; i++) {
+            const s = document.createElement('span');
+            s.className = 'click-spark';
+            const a = Math.random() * Math.PI * 2;
+            const d = 22 + Math.random() * 44;
+            s.style.left = x + 'px';
+            s.style.top = y + 'px';
+            s.style.setProperty('--sx', Math.cos(a) * d + 'px');
+            s.style.setProperty('--sy', Math.sin(a) * d + 'px');
+            s.style.setProperty('--spark', Math.random() > .5 ? '#8be9fd' : '#ffffff');
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 620);
+        }
+    }
+
+    document.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        burstAt(e.clientX, e.clientY, e.target.closest('.btn, .dot, .pl-pause-btn') ? 14 : 7);
+    });
+
+    card.addEventListener('pointermove', (e) => {
+        if (card.classList.contains('dragging')) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+        card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+    });
+
+    card.addEventListener('pointerleave', () => {
+        card.style.setProperty('--mx', '50%');
+        card.style.setProperty('--my', '38%');
+    });
+
+    buttons.forEach((btn) => {
+        btn.addEventListener('pointermove', (e) => {
+            const r = btn.getBoundingClientRect();
+            const x = (e.clientX - r.left - r.width / 2) * .12;
+            const y = (e.clientY - r.top - r.height / 2) * .18;
+            btn.style.setProperty('--mag-x', x.toFixed(1) + 'px');
+            btn.style.setProperty('--mag-y', y.toFixed(1) + 'px');
+            btn.classList.add('magnetic');
+        });
+        btn.addEventListener('pointerleave', () => {
+            btn.classList.remove('magnetic');
+            btn.style.removeProperty('--mag-x');
+            btn.style.removeProperty('--mag-y');
+        });
+    });
+
+    if (audio && player) {
+        const sync = () => player.classList.toggle('music-live', !audio.paused);
+        audio.addEventListener('play', sync);
+        audio.addEventListener('pause', sync);
+        audio.addEventListener('ended', sync);
+        sync();
+    }
+
+    setTimeout(() => document.body.classList.add('ready-wow'), 120);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'w') {
+            document.body.classList.add('wow-flash');
+            burstAt(innerWidth / 2, innerHeight / 2, 34);
+            setTimeout(() => document.body.classList.remove('wow-flash'), 800);
+        }
+    });
+}
+
+function initBirthdayMode() {
+    const now = new Date();
+    const params = new URLSearchParams(location.search);
+    const isBirthday = (now.getMonth() === 5 && now.getDate() === 10) || params.get('birthday') === '1';
+    if (!isBirthday || document.body.classList.contains('birthday-mode')) return;
+
+    document.body.classList.add('birthday-mode');
+
+
+
+    const balloons = document.createElement('div');
+    balloons.className = 'birthday-balloons';
+    balloons.innerHTML = Array.from({ length: 9 }, (_, i) => `<span style="--i:${i}"></span>`).join('');
+    document.body.appendChild(balloons);
+
+    const bio = document.querySelector('.userbio');
+    if (bio && !bio.dataset.birthdayText) {
+        bio.dataset.birthdayText = '1';
+        const old = bio.textContent;
+        setTimeout(() => {
+            const typed = document.getElementById('typed-text');
+            if (typed) typed.textContent = old;
+        }, 1200);
+    }
+
+    const birthdayBurst = () => {
+        if (typeof confetti !== 'function') return;
+        confetti({
+            particleCount: 90,
+            spread: 78,
+            startVelocity: 42,
+            origin: { x: .5, y: .62 },
+            colors: ['#ffffff', '#8be9fd', '#ff79c6', '#ffd166', '#50fa7b'],
+            ticks: 180,
+            scalar: .95
+        });
+        setTimeout(() => {
+            confetti({
+                particleCount: 55,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0, y: .82 },
+                colors: ['#8be9fd', '#ffffff', '#ffd166']
+            });
+            confetti({
+                particleCount: 55,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1, y: .82 },
+                colors: ['#ff79c6', '#ffffff', '#ffd166']
+            });
+        }, 220);
+    };
+
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.addEventListener('click', () => setTimeout(birthdayBurst, 520), { once: true });
+    } else {
+        setTimeout(birthdayBurst, 700);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'b') birthdayBurst();
+    });
+}
 window.addEventListener('load', () => {
     applyLang();
     initCursor();                    // в†ђ РљСѓСЂСЃРѕСЂ С‚РµРїРµСЂ С–РЅС–С†С–Р°Р»С–Р·СѓС”С‚СЊСЃСЏ С‚СѓС‚
     makeDraggable('bio-card', 'bio-drag');
     initRageHold();
     initExtraEasterEggs();
+    initWowPolish();
+    initBirthdayMode();
 });
 /* === FUF INSPIRED JS START === */
 function initFufInspiredFeatures() {
@@ -637,6 +780,7 @@ function initFufInspiredFeatures() {
         const enter = () => {
             if (!ready) return;
             loader.classList.add('fadeOut');
+            document.body.classList.add('site-entered');
             document.documentElement.classList.remove('loading-site');
             showNotification('Welcome', 'Press Ctrl + K for search', 'fas fa-search');
             setTimeout(() => loader.remove(), 650);
@@ -724,6 +868,12 @@ function initFufInspiredFeatures() {
 
 window.addEventListener('load', initFufInspiredFeatures);
 /* === FUF INSPIRED JS END === */
+
+
+
+
+
+
 
 
 

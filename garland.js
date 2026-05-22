@@ -1,11 +1,11 @@
-/**
+﻿/**
  * garland.js
- * Фоновый эффект + настоящая гирлянда только 10 июня
+ * Р¤РѕРЅРѕРІС‹Р№ СЌС„С„РµРєС‚ + РЅР°СЃС‚РѕСЏС‰Р°СЏ РіРёСЂР»СЏРЅРґР° С‚РѕР»СЊРєРѕ 10 РёСЋРЅСЏ
  */
 
 const canvas = document.getElementById('garland-canvas');
 const ctx = canvas.getContext('2d');
-const juneGarland = document.getElementById('june-garland');
+let juneGarland = document.getElementById('june-garland');
 let particles = [];
 let isDraggingGarland = false;
 let dragStart = { x: 0, y: 0 };
@@ -81,11 +81,17 @@ function animate() {
 
 function isJune10() {
     const now = new Date();
-    return now.getMonth() === 5 && now.getDate() === 10;
+    const params = new URLSearchParams(location.search);
+    return (now.getMonth() === 5 && now.getDate() === 10) || params.get('birthday') === '1';
 }
 
 function setupJuneGarland() {
-    if (!juneGarland) return;
+    if (!juneGarland) {
+        juneGarland = document.createElement('div');
+        juneGarland.id = 'june-garland';
+        juneGarland.className = 'june-garland hidden';
+        document.body.appendChild(juneGarland);
+    }
     if (!isJune10()) {
         juneGarland.classList.remove('visible');
         juneGarland.classList.add('hidden');
@@ -115,6 +121,7 @@ function setupJuneGarland() {
         bulb.className = 'garland-bulb glow';
         bulb.style.background = colors[i % colors.length];
         bulb.dataset.index = i;
+        bulb.style.setProperty('--n', i);
         bulb.style.setProperty('--twist', `${Math.sin(i / 2) * 8}deg`);
         bulb.style.transform = `rotate(${Math.sin(i / 2) * 6}deg)`;
         bulbsContainer.appendChild(bulb);
@@ -188,3 +195,5 @@ window.addEventListener('load', () => {
     animate();
     requestAnimationFrame(animateGarlandRelease);
 });
+
+
